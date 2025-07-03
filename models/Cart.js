@@ -26,7 +26,7 @@ const CartSchema = new mongoose.Schema({
         unique: true
     },
     items: [CartItemSchema],
-    peekCoins: {
+    peekCoins: {  //Redemable peek coins (This will be updated if user uses them, or whenever a purchase is completed the peekCoins will be increased)
         type: Number,
         default: 0
     },

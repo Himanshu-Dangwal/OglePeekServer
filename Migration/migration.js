@@ -49,4 +49,21 @@ const hiddenFieldInProduct = async () => {
     }
 }
 
-hiddenFieldInProduct().catch(err => console.log("Error in cart migration:", err));
+// hiddenFieldInProduct().catch(err => console.log("Error in cart migration:", err));
+
+const orderStatusInOrder = async () => {
+    try {
+        const result = await Order.updateMany(
+            { "orderStatus": { $exists: false } },
+            { $set: { "orderStatus": "Pending" } }
+        )
+        console.log(`Matched ${result.matchedCount}, Modified ${result.modifiedCount}`);
+    } catch (error) {
+        console.log("Error while migrating the database", error);
+    } finally {
+        await mongoose.disconnect();
+    }
+}
+
+orderStatusInOrder().catch(err => console.log("Error in cart migration:", err));
+

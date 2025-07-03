@@ -124,6 +124,7 @@ exports.getProductsWithFilterAndPagination = async (req, res) => {
         let sortOption = {};
         if (sort === "lowtohigh") sortOption = { "variants.price": 1 };
         else if (sort === "hightolow") sortOption = { "variants.price": -1 };
+        console.log(filter)
 
         const products = await Product.find(filter)
             .sort(sortOption)
