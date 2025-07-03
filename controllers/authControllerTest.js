@@ -78,7 +78,8 @@ module.exports.loginHandlerViaEmailTest = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            firstName: foundUser.name
+            firstName: foundUser.name,
+            peekCoins: foundUser.peekCoins
         });
 
         // res.status(200).json({ success: true, authToken, firstName: foundUser.name });

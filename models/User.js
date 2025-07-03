@@ -22,7 +22,8 @@ const userSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     otp: { type: String },
     otpExpires: { type: Date },
-    isAdmin: { type: Boolean, require: true, default: false }
+    isAdmin: { type: Boolean, require: true, default: false },
+    peekCoins: { type: Number, default: 0 }
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

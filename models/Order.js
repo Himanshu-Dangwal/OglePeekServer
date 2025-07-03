@@ -2,15 +2,33 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
     cartId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart', required: true },
-    totalAmount: { type: Number },    // total price of all items at purchase time
-    customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', default: null },
-    name: { type: String, required: true },    // customer's name (for shipping)
-    email: { type: String, required: true },    // customer's email (for notification)
-    phone: { type: String, required: true },    // customer's phone (for loyalty & SMS)
-    address: { type: String, required: true },    // shipping address
-    status: { type: String, default: 'Pending Payment' },  // e.g., Pending Payment, Confirmed, Shipped, Delivered
-    paymentRef: { type: String, default: '' },        // reference from payment gateway (e.g., transaction ID),
-    placedAt: { type: Date, default: Date.now },    // when the order was placed
+    totalAmount: { type: Number }, // total price of all items at purchase time
+    customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    orderStatus: {
+        type: String,
+        enum: ['Confirmed', 'Pending', 'Completed'],
+        default: 'Pending'
+    },
+
+    // Shipping Info
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+    address: { type: String, required: true },
+    pincode: { type: String, required: true },
+    city: { type: String, required: true },
+    country: { type: String, required: true },
+    state: { type: String, required: true },
+
+    gender: { type: String, enum: ['Male', 'Female', 'other'], default: 'other' },
+
+    paymentStatus: {
+        type: String,
+        enum: ['Pending Payment', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
+        default: 'Pending Payment',
+    },
+    paymentRef: { type: String, default: '' },
+    placedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);
