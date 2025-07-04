@@ -49,6 +49,7 @@ module.exports.registerTestHandler = async (req, res) => {
 
 
 module.exports.loginHandlerViaEmailTest = async (req, res) => {
+
     const { email, password } = req.body;
 
     try {
