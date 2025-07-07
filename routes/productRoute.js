@@ -10,11 +10,11 @@ router.post('/', authenticate, adminOnly, createProduct);
 //Get all products information
 router.get('/', getProductsWithFilterAndPagination);
 
-//Get product by ID
-router.get('/:id', getProductById);
-
 //Get all products with full details
 router.get('/all', getAllProducts);
+
+//Get product by ID
+router.get('/:id', getProductById);
 
 //Delete a product
 router.delete('/:id', authenticate, adminOnly, deleteProduct);
