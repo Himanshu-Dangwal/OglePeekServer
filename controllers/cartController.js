@@ -1,5 +1,7 @@
 const Cart = require('../models/Cart'); // Assuming you have a Cart model defined
 const mongoose = require("mongoose")
+const Variant = require('../models/Variant'); // Assuming you have a Variant model defined
+const Product = require('../models/Product');
 
 const addOrUpdateCartItem = async (req, res) => {
     try {
@@ -104,10 +106,12 @@ const getCartItems = async (req, res) => {
             return res.status(404).json({ success: false, message: "Cart not found" });
         }
 
+        console.log("Cart fetched", cart);
         // Map through items and attach variant info manually
-        const detailedItems = cart.items.map(item => {
-            const product = item.productId;
-            const variant = product.variants.find(v => v._id.toString() === item.variantId.toString());
+        const detailedItems = await Promise.all(cart.items.map(async item => {
+            const product = await Product.findById(item.productId);
+            const variant = await Variant.findById(item.variantId);
+            console.log("Product and variant fetched", product, variant);
 
             return {
                 productId: product._id,
@@ -123,7 +127,7 @@ const getCartItems = async (req, res) => {
                 frameType: product.frameType,
                 description: product.description
             };
-        });
+        }));
 
         return res.status(200).json({ success: true, items: detailedItems, peekCoins: cart.peekCoins });
     } catch (err) {
