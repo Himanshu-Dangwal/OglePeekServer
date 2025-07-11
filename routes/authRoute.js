@@ -43,7 +43,7 @@ router.post("/logout", (req, res) => {
     res.clearCookie("authToken", {
         httpOnly: true,
         secure: true,
-        sameSite: "Strict"
+        sameSite: "None"
     });
     res.json({ success: true });
 });
