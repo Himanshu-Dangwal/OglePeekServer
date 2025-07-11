@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
+const axios = require("axios");
 
 //Routes
 const adminRoute = require("../routes/adminRoute")
@@ -68,3 +69,19 @@ app.listen(PORT, (req, res) => {
     console.log(`Server started at PORT ${PORT}`)
 })
 
+
+const backendURL = process.env.Backend_URL;
+
+setInterval(() => {
+    axios.get(`${backendURL}`)
+        .then(response => {
+            console.log('Pinged backend to keep it alive.');
+        })
+        .catch(error => {
+            console.error('Error pinging backend:', error);
+        });
+}, 10 * 60 * 1000);
+
+app.listen(PORT, (req, res) => {
+    console.log(`Server listening on PORT ${PORT}`)
+})
