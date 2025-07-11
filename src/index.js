@@ -25,12 +25,26 @@ const MONGO_LOCAL_URI = "mongodb://localhost:27017/oglepeek"
 const MONGO_PROD_URI = process.env.PROD_URI || "mongodb://localhost:27017/oglepeek"
 
 const app = express();
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://oglepeek-frontend-web.vercel.app"
+];
+
 app.use(
     cors({
-        origin: "http://localhost:3000",
+        origin: function (origin, callback) {
+            // Allow requests with no origin (like mobile apps or curl)
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            } else {
+                return callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true
     })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 
