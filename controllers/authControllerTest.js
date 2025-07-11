@@ -73,7 +73,7 @@ module.exports.loginHandlerViaEmailTest = async (req, res) => {
         res.cookie("authToken", authToken, {
             httpOnly: true,
             secure: true,
-            sameSite: "Strict",
+            sameSite: "None",
             maxAge: 365 * 24 * 60 * 60 * 1000
         });
 
