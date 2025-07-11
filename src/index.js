@@ -27,7 +27,8 @@ const MONGO_PROD_URI = process.env.PROD_URI || "mongodb://localhost:27017/oglepe
 const app = express();
 const allowedOrigins = [
     "http://localhost:3000",
-    "https://oglepeek-frontend-web.vercel.app"
+    "https://oglepeek-frontend-web.vercel.app",
+    "https://oglepeek.dangwalhimanshu.com"
 ];
 
 app.use(
