@@ -6,8 +6,8 @@ const orderSchema = new mongoose.Schema({
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     orderStatus: {
         type: String,
-        enum: ['Confirmed', 'Pending', 'Completed'],
-        default: 'Pending'
+        enum: ['Confirmed', 'Pending', 'Completed', 'Cancelled'],  //Confirmed -> When it is paid for, Pending -> When it is not paid for, Completed -> When it is delivered, Cancelled -> When it is cancelled
+        default: 'Pending'   //Order is created but not paid for
     },
 
     // Shipping Info
@@ -24,7 +24,7 @@ const orderSchema = new mongoose.Schema({
 
     paymentStatus: {
         type: String,
-        enum: ['Pending Payment', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
+        enum: ['Pending Payment', 'Paid', 'Failed', 'Refunded'],
         default: 'Pending Payment',
     },
     paymentRef: { type: String, default: '' },

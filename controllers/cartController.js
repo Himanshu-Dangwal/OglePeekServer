@@ -12,7 +12,7 @@ const addOrUpdateCartItem = async (req, res) => {
             quantity = Number(quantity);
         }
 
-        let cart = await Cart.findOne({ userId });
+        let cart = await Cart.findOne({ userId, userActiveCart: true });
 
         if (!cart) {
             cart = new Cart({
@@ -37,6 +37,13 @@ const addOrUpdateCartItem = async (req, res) => {
             }
         }
 
+
+        if (cart.items.length === 0) {
+            // If the cart is empty, remove it
+            await Cart.deleteOne({ userId });
+            return res.status(200).json({ success: true, message: "Cart is empty now" });
+        }
+
         cart.updatedAt = Date.now();
         await cart.save();
         res.status(200).json({ success: true, cart });
@@ -52,7 +59,7 @@ const removeCartItem = async (req, res) => {
     const userId = req.user.user.id;
 
     try {
-        const cart = await Cart.findOne({ userId });
+        const cart = await Cart.findOne({ userId, userActiveCart: true });
 
         if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
 
@@ -76,7 +83,7 @@ const updateCartItemQuantity = async (req, res) => {
     const userId = req.user.user.id;
 
     try {
-        const cart = await Cart.findOne({ userId });
+        const cart = await Cart.findOne({ userId, userActiveCart: true });
         if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
 
         const item = cart.items.find(
@@ -100,18 +107,18 @@ const getCartItems = async (req, res) => {
     const userId = req.user.user.id;
 
     try {
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        const cart = await Cart.findOne({ userId, userActiveCart: true }).populate('items.productId');
 
         if (!cart) {
             return res.status(404).json({ success: false, message: "Cart not found" });
         }
 
-        console.log("Cart fetched", cart);
+        // console.log("Cart fetched", cart);
         // Map through items and attach variant info manually
         const detailedItems = await Promise.all(cart.items.map(async item => {
             const product = await Product.findById(item.productId);
             const variant = await Variant.findById(item.variantId);
-            console.log("Product and variant fetched", product, variant);
+            // console.log("Product and variant fetched", product, variant);
 
             return {
                 productId: product._id,
