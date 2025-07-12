@@ -11,7 +11,7 @@ exports.createOrUpdateOrder = async (req, res) => {
         const userId = req.user.user.id;
 
         // 1. Fetch user's cart
-        const cart = await Cart.findOne({ userId });
+        const cart = await Cart.findOne({ userId, userActiveCart: true });
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ success: false, message: "Cart is empty or not found" });
         }
@@ -109,7 +109,6 @@ exports.createOrUpdateOrder = async (req, res) => {
 exports.getUserOrders = async (req, res) => {
     try {
         const userId = req.user.user.id;
-
         const orders = await Order.find({ customer: userId })
             .populate({
                 path: "cartId",
