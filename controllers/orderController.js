@@ -50,9 +50,14 @@ exports.createOrUpdateOrder = async (req, res) => {
             city,
             country,
             state,
-            gender,
-            totalAmount
+            gender
         } = req.body.userData;
+
+        let totalAmount = 0;
+        for (const item of cart.items) {
+            const variant = await Variant.findById(item.variantId);
+            totalAmount += item.quantity * variant.price;
+        }
 
         const orderData = {
             totalAmount,
