@@ -12,6 +12,7 @@ const productRoute = require("../routes/productRoute")
 const customRoute = require("../routes/customerRoute");
 const cartRoute = require("../routes/cartRoute");
 const variantRoute = require("../routes/variantRoute")
+const paymentRoute = require("../routes/paymentRoute");
 
 
 //.env
@@ -74,6 +75,8 @@ app.use("/api/admin", adminRoute);
 app.use("/api/customers", customRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/variant", variantRoute)
+app.use("/api/payment", paymentRoute);
+console.log(process.env.Backend_URL)
 
 
 app.get("/", (req, res) => {

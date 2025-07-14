@@ -40,37 +40,69 @@ exports.createOrUpdateOrder = async (req, res) => {
             }
         }
 
+        console.log(req.body)
+
         // 4. Extract shipping/user data
-        const {
-            first_name,
-            email,
-            phone,
-            address,
-            pincode,
-            city,
-            country,
-            state,
-            gender,
-            totalAmount
-        } = req.body.userData;
+        // const {
+        //     first_name,
+        //     email,
+        //     phone,
+        //     address,
+        //     pincode,
+        //     city,
+        //     country,
+        //     state,
+        //     gender
+        // } = req.body.userData;
+
+
+
+        // const orderData = {
+        //     totalAmount,
+        //     name: first_name,
+        //     email,
+        //     phone,
+        //     address,
+        //     pincode,
+        //     city,
+        //     country,
+        //     state,
+        //     gender,
+        //     customer: userId,
+        //     cartId: cart._id,
+        //     paymentStatus: 'Pending Payment',
+        //     orderStatus: 'Pending',
+        //     placedAt: new Date()
+        // };
+        let totalAmount = 0;
+        for (const item of cart.items) {
+            const variant = await Variant.findById(item.variantId);
+            totalAmount += item.quantity * variant.price;
+        }
+
+        const userData = req.body.userData || {};
 
         const orderData = {
             totalAmount,
-            name: first_name,
-            email,
-            phone,
-            address,
-            pincode,
-            city,
-            country,
-            state,
-            gender,
             customer: userId,
             cartId: cart._id,
             paymentStatus: 'Pending Payment',
             orderStatus: 'Pending',
-            placedAt: new Date()
+            placedAt: new Date(),
         };
+
+        // Only assign if field exists in request body
+        if (userData.first_name) orderData.name = userData.first_name;
+        if (userData.email) orderData.email = userData.email;
+        if (userData.phone) orderData.phone = userData.phone;
+        if (userData.address) orderData.address = userData.address;
+        if (userData.pincode) orderData.pincode = userData.pincode;
+        if (userData.city) orderData.city = userData.city;
+        if (userData.country) orderData.country = userData.country;
+        if (userData.state) orderData.state = userData.state;
+        if (userData.gender) orderData.gender = userData.gender;
+
+
 
         // 5. Create or update logic
         if (existingOrder) {
