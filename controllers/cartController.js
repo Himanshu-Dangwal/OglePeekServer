@@ -1,7 +1,18 @@
-const Cart = require('../models/Cart'); // Assuming you have a Cart model defined
-const mongoose = require("mongoose")
-const Variant = require('../models/Variant'); // Assuming you have a Variant model defined
+const Cart = require('../models/Cart');
+const mongoose = require("mongoose");
+const Variant = require('../models/Variant');
 const Product = require('../models/Product');
+
+const calculateTotalAmount = async (items) => {
+    let total = 0;
+    for (const item of items) {
+        const variant = await Variant.findById(item.variantId);
+        if (variant) {
+            total += variant.price * item.quantity;
+        }
+    }
+    return total;
+};
 
 const addOrUpdateCartItem = async (req, res) => {
     try {
@@ -28,7 +39,6 @@ const addOrUpdateCartItem = async (req, res) => {
 
             if (itemIndex > -1) {
                 cart.items[itemIndex].quantity += quantity;
-
                 if (cart.items[itemIndex].quantity <= 0) {
                     cart.items.splice(itemIndex, 1);
                 }
@@ -37,13 +47,12 @@ const addOrUpdateCartItem = async (req, res) => {
             }
         }
 
-
         if (cart.items.length === 0) {
-            // If the cart is empty, remove it
             await Cart.deleteOne({ userId });
             return res.status(200).json({ success: true, message: "Cart is empty now" });
         }
 
+        cart.totalAmount = await calculateTotalAmount(cart.items);
         cart.updatedAt = Date.now();
         await cart.save();
         res.status(200).json({ success: true, cart });
@@ -60,7 +69,6 @@ const removeCartItem = async (req, res) => {
 
     try {
         const cart = await Cart.findOne({ userId, userActiveCart: true });
-
         if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
 
         cart.items = cart.items.filter(
@@ -69,6 +77,12 @@ const removeCartItem = async (req, res) => {
                 item.variantId.toString() !== variantId
         );
 
+        if (cart.items.length === 0) {
+            await Cart.deleteOne({ userId });
+            return res.status(200).json({ success: true, message: "Cart is empty now" });
+        }
+
+        cart.totalAmount = await calculateTotalAmount(cart.items);
         cart.updatedAt = Date.now();
         await cart.save();
         res.status(200).json({ success: true, cart });
@@ -95,6 +109,7 @@ const updateCartItemQuantity = async (req, res) => {
         if (!item) return res.status(404).json({ success: false, message: "Item not in cart" });
 
         item.quantity = quantity;
+        cart.totalAmount = await calculateTotalAmount(cart.items);
         cart.updatedAt = Date.now();
         await cart.save();
         res.status(200).json({ success: true, cart });
@@ -103,22 +118,17 @@ const updateCartItemQuantity = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to update quantity' });
     }
 };
+
 const getCartItems = async (req, res) => {
     const userId = req.user.user.id;
 
     try {
         const cart = await Cart.findOne({ userId, userActiveCart: true }).populate('items.productId');
+        if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
 
-        if (!cart) {
-            return res.status(404).json({ success: false, message: "Cart not found" });
-        }
-
-        // console.log("Cart fetched", cart);
-        // Map through items and attach variant info manually
         const detailedItems = await Promise.all(cart.items.map(async item => {
             const product = await Product.findById(item.productId);
             const variant = await Variant.findById(item.variantId);
-            // console.log("Product and variant fetched", product, variant);
 
             return {
                 productId: product._id,
@@ -142,7 +152,6 @@ const getCartItems = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Failed to fetch cart items' });
     }
 };
-
 
 module.exports = {
     addOrUpdateCartItem,
