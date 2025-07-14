@@ -5,7 +5,6 @@ const Product = require("../models/Product")
 const Variant = require("../models/Variant")
 
 const sendEmail = require("../utils/sendEmail");
-
 exports.createOrUpdateOrder = async (req, res) => {
     try {
         const userId = req.user.user.id;
@@ -42,48 +41,10 @@ exports.createOrUpdateOrder = async (req, res) => {
 
         console.log(req.body)
 
-        // 4. Extract shipping/user data
-        // const {
-        //     first_name,
-        //     email,
-        //     phone,
-        //     address,
-        //     pincode,
-        //     city,
-        //     country,
-        //     state,
-        //     gender
-        // } = req.body.userData;
-
-
-
-        // const orderData = {
-        //     totalAmount,
-        //     name: first_name,
-        //     email,
-        //     phone,
-        //     address,
-        //     pincode,
-        //     city,
-        //     country,
-        //     state,
-        //     gender,
-        //     customer: userId,
-        //     cartId: cart._id,
-        //     paymentStatus: 'Pending Payment',
-        //     orderStatus: 'Pending',
-        //     placedAt: new Date()
-        // };
-        let totalAmount = 0;
-        for (const item of cart.items) {
-            const variant = await Variant.findById(item.variantId);
-            totalAmount += item.quantity * variant.price;
-        }
-
         const userData = req.body.userData || {};
 
         const orderData = {
-            totalAmount,
+            totalAmount: cart.totalAmount,
             customer: userId,
             cartId: cart._id,
             paymentStatus: 'Pending Payment',
@@ -150,6 +111,10 @@ exports.getUserOrders = async (req, res) => {
                 ],
             })
             .sort({ createdAt: -1 });
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ success: false, message: "No orders found for this user" });
+        }
 
         return res.status(200).json({ success: true, orders });
     } catch (error) {

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
     cartId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart', required: true },
-    totalAmount: { type: Number }, // total price of all items at purchase time
+    totalAmount: { type: Number }, // Total amount of the order
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     orderStatus: {
         type: String,

@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const User = require('../models/User');
+const Variant = require('../models/Variant');
 
 const ESEWA_MERCHANT_ID = process.env.MERCHANT_ID;      // eSewa merchant code
 const ESEWA_PAYMENT_URL = process.env.ESEWAPAYMENT_URL; // eSewa payment endpoint (for redirect/form)
@@ -111,12 +112,33 @@ exports.esewaSuccess = async (req, res) => {
                 paidOrder.paymentRef = responseData.transaction_code || "";  // store eSewa transaction code
                 await paidOrder.save();
             }
+            console.log("Trying to update the cart status for order:", orderId);
             // You might clear the user's cart or mark it inactive as well
             if (paidOrder && paidOrder.cartId) {
                 await Cart.findByIdAndUpdate(paidOrder.cartId, { userActiveCart: false });
             }
+
+            //Also need to update the inStock of each variant in the order
+            //First need to populate the order with cart items
+            await paidOrder.populate({
+                path: 'cartId',
+                populate: {
+                    path: 'items.variantId',
+                    model: 'Variant'
+                }
+            });
+            console.log("Trying to update in Stock for each variant in the order:", paidOrder);
+            for (const item of paidOrder.cartId.items) {
+                const variant = await Variant.findById(item.variantId);
+                if (variant) {
+                    variant.inStock -= item.quantity;
+                    await variant.save();
+                }
+            }
             // Respond or redirect to a success page
-            return res.redirect(`http://localhost:3000/payment-success?orderId=${orderId}`);
+            console.log("Payment successful for order:", orderId);
+            console.log(`${process.env.CLIENT_URL}/payment-success?orderId=${orderId}`)
+            return res.redirect(`${process.env.CLIENT_URL}/payment-success?orderId=${orderId}`);
 
             // return res.json({ message: "Payment successful", orderId: orderId, status: responseData.status });
             // (In a real app, you might redirect the user to a frontend route like: res.redirect('/order-success?orderId=...'))
@@ -147,7 +169,7 @@ exports.esewaFailure = async (req, res) => {
         }
         // Respond with a failure message or redirect to a retry page
         // return res.json({ message: "Payment failed or was cancelled. Please try again." });
-        return res.redirect(`http://localhost:3000/payment-failure`);
+        return res.redirect(`${process.env.CLIENT_URL}/payment-failure`);
     } catch (err) {
         console.error("Error in eSewa failure handler:", err);
         res.status(500).send("Error handling payment failure.");

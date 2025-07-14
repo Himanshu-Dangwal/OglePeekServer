@@ -40,6 +40,10 @@ const CartSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    totalAmount: {
+        type: Number,
+        default: 0
+    },
     updatedAt: {
         type: Date,
         default: Date.now
