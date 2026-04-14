@@ -18,11 +18,8 @@ const CartItemSchema = new mongoose.Schema({
     }
 });
 
-
-//A user can have more than 1 cart, and each cart will be linked to an order. 
-//The orders can be Pending, Confirmed, Completed, Cancelled
-//At one time only 1 order can be in pending state, and that will be the active cart of the user
-//The cart will be used to store the items that the user has added to the cart,
+// A user can have more than 1 cart; each cart links to an order.
+// Only one cart can be active (userActiveCart: true) at a time.
 const CartSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -30,12 +27,11 @@ const CartSchema = new mongoose.Schema({
         required: true,
     },
     items: [CartItemSchema],
-    peekCoins: {  //Redemable peek coins (This will be updated if user uses them, or whenever a purchase is completed the peekCoins will be increased)
+    peekCoins: {
         type: Number,
         default: 0
     },
-    userActiveCart: { // This will be used to check if the user has an active cart or not
-        // Main idea is to differentiate between the current active cart of the user and the other carts of the user, which are associated with the user
+    userActiveCart: {
         type: Boolean,
         default: true
     },
@@ -48,5 +44,9 @@ const CartSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+// Compound index — every cart operation queries this pair; without the index
+// it is a full collection scan on every request.
+CartSchema.index({ userId: 1, userActiveCart: 1 });
 
 module.exports = mongoose.model('Cart', CartSchema);
