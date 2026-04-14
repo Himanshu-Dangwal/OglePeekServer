@@ -6,3 +6,5 @@ node_modules/
 
 # Migration/migration.js
 tmp/
+
+createAdmin.js
