@@ -8,7 +8,7 @@ const helmet          = require('helmet');
 
 dotenv.config();
 
-// ── Routes ───────────────────────────────────────────────────────────────────
+// Routes
 
 const adminRoute   = require('../routes/adminRoute');
 const authRoute    = require('../routes/authRoute');
@@ -19,7 +19,7 @@ const cartRoute    = require('../routes/cartRoute');
 const variantRoute = require('../routes/variantRoute');
 const paymentRoute = require('../routes/paymentRoute');
 
-// ── App setup ────────────────────────────────────────────────────────────────
+// App setup
 
 const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.PROD_URI || 'mongodb://localhost:27017/oglepeek';
@@ -38,7 +38,8 @@ const allowedOrigins = [
     'https://oglepeek-frontend-web.vercel.app',
     'https://oglepeek.dangwalhimanshu.com',
     'http://localhost:3001',
-    'https://ogle-peek-client.vercel.app'
+    'https://ogle-peek-client.vercel.app',
+    'https://ogle-peek-admin.vercel.app'
 ];
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
