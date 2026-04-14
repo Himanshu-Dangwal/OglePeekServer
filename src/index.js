@@ -37,7 +37,8 @@ const allowedOrigins = [
     'http://localhost:5174',
     'https://oglepeek-frontend-web.vercel.app',
     'https://oglepeek.dangwalhimanshu.com',
-    'http://localhost:3001'
+    'http://localhost:3001',
+    'https://ogle-peek-client.vercel.app'
 ];
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
