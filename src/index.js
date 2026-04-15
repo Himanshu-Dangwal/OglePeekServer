@@ -115,6 +115,17 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', db: dbState });
 });
 
+// Temporary: verify cookie config is correct in production — remove after confirming
+app.get('/debug-cookie', (req, res) => {
+    const isProd = process.env.NODE_ENV === 'production';
+    res.json({
+        NODE_ENV: process.env.NODE_ENV,
+        isProd,
+        cookieWillBe: { secure: isProd, sameSite: isProd ? 'None' : 'Lax' },
+        receivedCookies: req.cookies,
+    });
+});
+
 app.use('/api/orders',    orderRoute);
 app.use('/api/auth',      authRoute);
 app.use('/api/product',   productRoute);
