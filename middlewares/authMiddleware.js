@@ -17,11 +17,7 @@ const User = require('../models/User');
 
 
 exports.authenticate = (req, res, next) => {
-    console.log("Auth middleware called");
     const token = req.cookies.authToken;
-    console.log("Token from cookies:", token);
-    // console.log(req)
-    // console.log(req.cookies)
     if (!token) return res.status(401).json({ message: "Not authenticated" });
 
     try {
@@ -35,13 +31,8 @@ exports.authenticate = (req, res, next) => {
 };
 
 exports.adminOnly = async (req, res, next) => {
-    console.log(req.user);
     req.user = req.user.user;
-    console.log(req.user);
-
     const currUser = await User.findById(req.user.id);
-    console.log(currUser)
-
     if (currUser && currUser.isAdmin) {
         next();
     } else {
